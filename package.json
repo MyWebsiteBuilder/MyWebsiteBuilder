@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "devDependencies": {
     "@swc/cli": "^0.8.1",
-    "@swc/core": "^1.15.32",
+    "@swc/core": "^1.15.33",
     "ejs": "^5.0.2",
     "lightningcss": "^1.32.0",
     "lightningcss-cli": "^1.32.0",
