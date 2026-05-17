@@ -27,7 +27,7 @@ done
 
 for dir in src/pub.*/; do
  
-  item="${dir#src}"
+  item="${dir#src/}"
   item="${item//.//}"
   item="${item%/}"
 
