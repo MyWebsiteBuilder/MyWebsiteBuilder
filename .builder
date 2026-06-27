@@ -4,92 +4,97 @@ set -euo pipefail
 
 build() {
 
-  local srcdir="$1"
-  local name="$2"
-  local dstdir="$3"
+  local src="$1"
+  local dst="$2"
 
-  mkdir -p "${dstdir}"
+  if [[ -f "$src".html ]]; then
 
-  if [[ -f "${srcdir}${name}".html ]]; then
+    mkdir -p "${dst%/*}"/
 
     if [[ "${MODE:-development}" == production ]]; then
 
-      npx ejs "${srcdir}${name}".html -o "${dstdir}${name}".html -m "!" -w
+      npx ejs "$src".html -o "$dst".html -m "!" -w
 
     else
 
-      npx ejs "${srcdir}${name}".html -o "${dstdir}${name}".html -m "!"
+      npx ejs "$src".html -o "$dst".html -m "!"
 
     fi
 
   fi
 
-  if [[ -f "${srcdir}${name}".css ]]; then
+  if [[ -f "$src".css ]]; then
+
+    mkdir -p "${dst%/*}"/
 
     if [[ "${MODE:-development}" == production ]]; then
 
-      npx lightningcss "${srcdir}${name}".css -o "${dstdir}${name}".css --bundle --browserslist --minify
+      npx lightningcss "$src".css -o "$dst".css --bundle --browserslist --minify
 
     else
 
-      npx lightningcss "${srcdir}${name}".css -o "${dstdir}${name}".css --bundle --browserslist
+      npx lightningcss "$src".css -o "$dst".css --bundle --browserslist
 
     fi
 
   fi
 
-  if [[ -f "${srcdir}${name}".js ]]; then
+  if [[ -f "$src".js ]]; then
 
-    npx rolldown "${srcdir}${name}".js -o "${dstdir}${name}".combined.js -f iife
+    mkdir -p "${dst%/*}"/
 
-    npx swc "${dstdir}${name}".combined.js -o "${dstdir}${name}".transpiled.js -q
+    npx rolldown "$src".js -o "$dst".combined.js -f iife
+
+    npx swc "$dst".combined.js -o "$dst".transpiled.js -q
 
     if [[ "${MODE:-development}" == production ]]; then
 
-      npx rolldown "${dstdir}${name}".transpiled.js -o "${dstdir}${name}".js -m
+      npx rolldown "$dst".transpiled.js -o "$dst".js -m
 
     else
 
-      cp "${dstdir}${name}".transpiled.js "${dstdir}${name}".js
+      cp "$dst".transpiled.js "$dst".js
 
     fi
 
-    rm "${dstdir}${name}".combined.js
-    rm "${dstdir}${name}".transpiled.js
+    rm "$dst".combined.js
+    rm "$dst".transpiled.js
 
   fi
 
-  if [[ -f "$srcdir"Handler.java ]]; then
+  if [[ -f "$src".java ]]; then
+
+    mkdir -p "${dst%/*}"/
 
     if [[ "${MODE:-development}" == production ]]; then
 
-      javac -cp @classpath.txt "$srcdir"Handler.java -d "$dstdir"
+      javac -cp @classpath.txt "$src".java -d "${dst%/*}"/
 
     else
 
-      javac -cp @classpath.txt "$srcdir"Handler.java -d "$dstdir" -g
+      javac -cp @classpath.txt "$src".java -d "${dst%/*}"/ -g
 
     fi
 
-    args=(-C "$dstdir" Handler.class)
+    args=(-C "${dst%/*}"/ "${dst##*/}".class)
 
-    if [[ -d "${srcdir}"resources/ ]]; then
+    if [[ -d "${src%/*}"/resources/ ]]; then
 
-      args+=(-C "$srcdir" resources/)
+      args+=(-C "${src%/*}"/ resources/)
 
     fi
 
-    if [[ -f "${dstdir}${name}".html ]]; then
+    if [[ -f "$dst".html ]]; then
     
-      args+=(-C "$dstdir" "$name".html)
+      args+=(-C "${dst%/*}"/ "${dst##*/}".html)
 
     fi
 
-    jar cf "${dstdir}${name}".jar "${args[@]}"
+    jar cf "$dst".jar "${args[@]}"
 
-    rm "$dstdir"Handler.class
+    rm "$dst".class
 
-    rm -f "${dstdir}${name}".html
+    rm -f "$dst".html
 
   fi
 
