@@ -8,9 +8,11 @@ build() {
   local name="$2"
   local dstdir="$3"
 
+  mkdir -p "${dstdir}"
+
   if [[ -f "${srcdir}${name}".html ]]; then
 
-    if [[ "${MODE:-development}" == "production" ]]; then
+    if [[ "${MODE:-development}" == production ]]; then
 
       npx ejs "${srcdir}${name}".html -o "${dstdir}${name}".html -m ! -w
 
@@ -24,7 +26,7 @@ build() {
 
   if [[ -f "${srcdir}${name}".css ]]; then
 
-    if [[ "${MODE:-development}" == "production" ]]; then
+    if [[ "${MODE:-development}" == production ]]; then
 
       npx lightningcss "${srcdir}${name}".css -o "${dstdir}${name}".css --bundle --browserslist --minify
 
@@ -42,7 +44,7 @@ build() {
 
     npx swc "${dstdir}${name}".combined.js -o "${dstdir}${name}".transpiled.js -q
 
-    if [[ "${MODE:-development}" == "production" ]]; then
+    if [[ "${MODE:-development}" == production ]]; then
 
       npx rolldown "${dstdir}${name}".transpiled.js -o "${dstdir}${name}".js -m
 
@@ -59,7 +61,35 @@ build() {
 
   if [[ -f "$srcdir"Handler.java ]]; then
 
-    true
+    if [[ "${MODE:-development}" == production ]]; then
+
+      javac -cp @classpath.txt "$srcdir"Handler.java -d "$dstdir"
+
+    else
+
+      javac -cp @classpath.txt "$srcdir"Handler.java -d "$dstdir" -g
+
+    fi
+
+    args=(-C "$dstdir" Handler.class)
+
+    if [[ -d "${srcdir}"resources/ ]]; then
+
+      args+=(-C "$srcdir" resources/)
+
+    fi
+
+    if [[ -f "${dstdir}${name}".html ]]; then
+    
+      args+=(-C "$dstdir" "$name".html)
+
+    fi
+
+    jar cf "${dstdir}${name}".jar "${args[@]}"
+
+    rm "$dstdir"Handler.class
+
+    rm -f "${dstdir}${name}".html
 
   fi
 

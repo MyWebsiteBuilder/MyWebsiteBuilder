@@ -6,20 +6,23 @@ source .builder
 
 mkdir -p dst/
 
-if [[ -e src/pub/ ]]; then
+if [[ -d src/pub/ ]]; then
 
   printf "Building src/pub/\n"
+
   cp -r -T src/pub/ dst/pub/
 
 fi
 
 for src in src/pub.lib.*/; do
   
-  if [[ -e "$src" ]]; then
+  if [[ -d "$src" ]]; then
 
     printf "Building $src\n"
+
     dst="${src//./\/}"
     dst="${dst/src/dst}"
+
     cp -r -T "$src" "$dst"
 
   fi
@@ -28,14 +31,16 @@ done
 
 for src in src/pub.*/; do
 
-  if [[ -e "$src" ]]; then
+  if [[ -d "$src" ]]; then
    
    if [[ ! "$src" =~ ^src/pub.lib.*/ ]]; then
 
       printf "Building $src\n"
+
       dst="${src//./\/}"
       dst="${dst/src/dst}"
       dst="${dst%\/}"
+
       build "$src" "${dst##*/}" "${dst%/*}"/
       
     fi
