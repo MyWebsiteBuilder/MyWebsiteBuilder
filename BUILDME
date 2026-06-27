@@ -36,7 +36,7 @@ for src in src/pub.*/; do
       dst="${src//./\/}"
       dst="${dst/src/dst}"
       dst="${dst%\/}"
-      build "$src" "$dst"
+      build "$src" "${dst##*/}" "${dst%/*}"/
       
     fi
 
