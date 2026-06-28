@@ -4,11 +4,11 @@ set -euo pipefail
 
 source .builder
 
-mkdir -p dst/
-
 if [[ -d src/pub/ ]]; then
 
   printf "Building src/pub/\n"
+
+  mkdir -p dst/
 
   cp -r -T src/pub/ dst/pub/
 
@@ -22,6 +22,8 @@ for src in src/pub.lib.*/; do
 
     dst="${src//./\/}"
     dst="${dst/src/dst}"
+
+    mkdir -p "${dst%/*}"/
 
     cp -r -T "$src" "$dst"
 
