@@ -68,11 +68,11 @@ build() {
 
     if [[ "${MODE:-development}" == production ]]; then
 
-      javac -cp @classpath.txt "${src%/*}"/Handler.java -d "${dst%/*}"/
+      javac -cp "dst/lib/*" "${src%/*}"/Handler.java -d "${dst%/*}"/
 
     else
 
-      javac -cp @classpath.txt "${src%/*}"/Handler.java -d "${dst%/*}"/ -g
+      javac -cp "dst/lib/*" "${src%/*}"/Handler.java -d "${dst%/*}"/ -g
 
     fi
 
